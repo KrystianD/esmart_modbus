@@ -1,0 +1,9 @@
+from typing import List
+
+
+class BaseModbusDataBlock:
+    def setValues(self, address: int, values: List[int]) -> None: ...
+
+    def validate(self, address: int, count: int = 1) -> bool: ...
+
+    def getValues(self, address: int, count: int = 1) -> List[int]: ...

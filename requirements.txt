@@ -1,0 +1,4 @@
+pyserial
+pymodbus
+twisted
+mypy
