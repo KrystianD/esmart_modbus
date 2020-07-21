@@ -7,5 +7,5 @@ Usage
 -----
 
 ```sh
-python -m esolar_modbus --esmart-port /dev/ttyUSB0 --modbus-host localhost --modbus-port=5000
+python -m esmart_modbus --esmart-port /dev/ttyUSB0 --modbus-host localhost --modbus-port 5000
 ```
