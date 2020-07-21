@@ -5,7 +5,7 @@ from typing import Union, Sequence
 from esolar_device.crc import verify_crc
 from esolar_device.exceptions import CommandNotAcknowledgedException, ChecksumException, InvalidCommandException, ReadTimeoutException
 from esolar_device.protocol import build_set_request_word, build_get_request, CMD_NACK, CMD_ERR
-from esolar_device.types import ResponseHeader
+from esolar_device.response_header import ResponseHeader
 
 
 def read_all(ser: serial.Serial, len_to_read: int) -> bytes:
