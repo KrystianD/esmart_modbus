@@ -6,11 +6,11 @@ from pymodbus.datastore.store import BaseModbusDataBlock
 from pymodbus.server.asynchronous import StartTcpServer
 from pymodbus.datastore import ModbusSlaveContext, ModbusServerContext
 
-from esmart_monitor.monitor import ESolarMonitor
-from esmart_monitor.registers import ModbusRegisterType, ESolarRegister, regs, DataType
+from esmart_monitor.monitor import ESmartMonitor
+from esmart_monitor.registers import ModbusRegisterType, ESmartRegister, regs, DataType
 
 
-def create_registers(registers: Sequence[Tuple[ESolarRegister, Any]]) -> Dict[int, int]:
+def create_registers(registers: Sequence[Tuple[ESmartRegister, Any]]) -> Dict[int, int]:
     modbus_values = {}
 
     for reg, value in registers:
@@ -24,7 +24,7 @@ def create_registers(registers: Sequence[Tuple[ESolarRegister, Any]]) -> Dict[in
 
 
 class RegistersBlock(BaseModbusDataBlock):
-    def __init__(self, monitor: ESolarMonitor, reg_type: ModbusRegisterType) -> None:
+    def __init__(self, monitor: ESmartMonitor, reg_type: ModbusRegisterType) -> None:
         super().__init__()
         self.monitor = monitor
         self.reg_type = reg_type
@@ -32,12 +32,12 @@ class RegistersBlock(BaseModbusDataBlock):
     def setValues(self, address: int, values: List[int]) -> None:
         assert self.reg_type in (ModbusRegisterType.Coil, ModbusRegisterType.HoldingRegister)
 
-        modbus_reg: ESolarRegister = [x for x in regs if x.modbus_address == address and x.modbus_type == self.reg_type][0]
+        modbus_reg: ESmartRegister = [x for x in regs if x.modbus_address == address and x.modbus_type == self.reg_type][0]
 
         assert modbus_reg.data_type in (DataType.Uint16,)
 
         value = values[0]
-        self.monitor.set_word(data_item=modbus_reg.data_item, data_offset=modbus_reg.esolar_address, value=modbus_reg.to_esolar_word(value))
+        self.monitor.set_word(data_item=modbus_reg.data_item, data_offset=modbus_reg.esmart_address, value=modbus_reg.to_esmart_word(value))
 
     def validate(self, address: int, count: int = 1) -> bool:
         try:
@@ -67,7 +67,7 @@ class RegistersBlock(BaseModbusDataBlock):
 
 
 def run_server(esmart_serial_port_path: str, modbus_host: str, modbus_port: int) -> None:
-    mon = ESolarMonitor(esmart_serial_port_path)
+    mon = ESmartMonitor(esmart_serial_port_path)
 
     th = threading.Thread(target=mon.run)
     th.daemon = True

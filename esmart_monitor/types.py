@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class ESolarState:
+class ESmartState:
     charging_mode: int = 0
     pv_voltage: float = 0
     bat_voltage: float = 0
@@ -21,7 +21,7 @@ class ESolarState:
 
 
 @dataclass
-class ESolarConfig:
+class ESmartConfig:
     bat_type: int = 0
     bat_sys_type: int = 0
     bulk_volt: float = 0

@@ -22,7 +22,7 @@ def bytes_to_str(data: Union[bytes, Sequence[int]]) -> str:
     return ','.join(f'{x:02x}' for x in data)
 
 
-class ESolarSerialDevice:
+class ESmartSerialDevice:
     def __init__(self, path: str, *, device_addr: int) -> None:
         self.ser = serial.Serial(path, 9600, timeout=0.1)
         self.device_addr = device_addr

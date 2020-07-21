@@ -1,6 +1,6 @@
 import argparse
 
-from esmart_monitor.monitor import ESolarMonitor
+from esmart_monitor.monitor import ESmartMonitor
 
 
 def main() -> None:
@@ -9,7 +9,7 @@ def main() -> None:
 
     args = argparser.parse_args()
 
-    mon = ESolarMonitor(args.path)
+    mon = ESmartMonitor(args.path)
     mon.run()
 
 

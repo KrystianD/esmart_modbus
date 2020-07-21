@@ -4,7 +4,7 @@ from esmart_device.crc import calculate_crc
 
 PROTOCOL_STARTING_MARK = 0xaa
 
-ESOLAR_DEVICE_TYPE = 1
+ESMART_DEVICE_TYPE = 1
 
 CMD_ACK = 0x00
 CMD_GET = 0x01
@@ -16,7 +16,7 @@ CMD_ERR = 0x7f
 
 
 def build_request(device_addr: int, command_id: int, data_item: int, payload: bytes) -> bytes:
-    data = struct.pack("BBBBBB", PROTOCOL_STARTING_MARK, ESOLAR_DEVICE_TYPE, device_addr, command_id, data_item, len(payload)) + payload
+    data = struct.pack("BBBBBB", PROTOCOL_STARTING_MARK, ESMART_DEVICE_TYPE, device_addr, command_id, data_item, len(payload)) + payload
     data += struct.pack("B", calculate_crc(data))
     return data
 

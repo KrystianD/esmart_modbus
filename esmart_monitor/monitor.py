@@ -7,27 +7,27 @@ import traceback
 import itertools
 from typing import Optional, Any, Tuple, cast, Dict, List
 
-from esmart_device.device import ESolarSerialDevice
+from esmart_device.device import ESmartSerialDevice
 from esmart_device.exceptions import ReadTimeoutException
-from esmart_monitor.registers import regs, ESolarRegister, get_register
-from esmart_monitor.types import ESolarState, ESolarConfig
+from esmart_monitor.registers import regs, ESmartRegister, get_register
+from esmart_monitor.types import ESmartState, ESmartConfig
 
-TCommandEntry = Tuple[ESolarRegister, Any]
+TCommandEntry = Tuple[ESmartRegister, Any]
 
 
-class ESolarMonitor:
+class ESmartMonitor:
     def __init__(self, path: str):
-        self._dev: Optional[ESolarSerialDevice] = None
+        self._dev: Optional[ESmartSerialDevice] = None
         self._path = path
-        self._state: Optional[ESolarState] = None
-        self._config: Optional[ESolarConfig] = None
+        self._state: Optional[ESmartState] = None
+        self._config: Optional[ESmartConfig] = None
         self._state_last_update: Optional[datetime.datetime] = None
 
         self._commands_queue: queue.Queue[TCommandEntry] = queue.Queue()
 
-        self._values: List[Tuple[ESolarRegister, Any]] = []
+        self._values: List[Tuple[ESmartRegister, Any]] = []
 
-        self._pending_updates: Dict[ESolarRegister, Any] = {}
+        self._pending_updates: Dict[ESmartRegister, Any] = {}
 
     def _get_unpack(self, *, data_item: int, data_offset: int, data_format: str) -> Tuple[Any, ...]:
         if self._dev is None:
@@ -53,7 +53,7 @@ class ESolarMonitor:
 
         for i in range(5):
             try:
-                self._dev.set_word(data_item=reg.data_item, data_offset=reg.esolar_address, value=cast(int, value))
+                self._dev.set_word(data_item=reg.data_item, data_offset=reg.esmart_address, value=cast(int, value))
                 time.sleep(0.2)
                 break
             except ReadTimeoutException:
@@ -64,14 +64,14 @@ class ESolarMonitor:
         while True:
             try:
                 logging.info("Creating new serial port connection")
-                self._dev = ESolarSerialDevice(self._path, device_addr=2)
+                self._dev = ESmartSerialDevice(self._path, device_addr=2)
                 while True:
                     try:
                         new_values = []
                         for data_item, regs_for_item_it in itertools.groupby(regs, lambda x: x.data_item):
-                            regs_for_item = list(regs_for_item_it)
-                            addr_min = min(x.esolar_address for x in regs_for_item)
-                            addr_max = max(x.esolar_address + (x.data_size // 2) for x in regs_for_item)
+                            regs_for_item: List[ESmartRegister] = list(regs_for_item_it)
+                            addr_min = min(x.esmart_address for x in regs_for_item)
+                            addr_max = max(x.esmart_address + (x.data_size // 2) for x in regs_for_item)
 
                             d = self._dev.get(data_item=data_item, data_offset=addr_min, data_length=(addr_max - addr_min) * 2)
                             time.sleep(0.2)
@@ -79,7 +79,7 @@ class ESolarMonitor:
                             self._execute_commands()
 
                             for reg in regs_for_item:
-                                reg_data = reg.process_raw(struct.unpack_from(reg.data_format, d, (reg.esolar_address - addr_min) * 2)[0])
+                                reg_data = reg.process_raw(struct.unpack_from(reg.data_format, d, (reg.esmart_address - addr_min) * 2)[0])
 
                                 new_values.append((reg, reg_data))
 
@@ -105,7 +105,7 @@ class ESolarMonitor:
                 if self._dev is not None:
                     self._dev.close()
 
-    def get_state(self) -> Optional[ESolarState]:
+    def get_state(self) -> Optional[ESmartState]:
         if self._state is None or \
                 self._state_last_update is None or \
                 datetime.datetime.utcnow() - self._state_last_update > datetime.timedelta(seconds=10):
@@ -113,7 +113,7 @@ class ESolarMonitor:
         else:
             return self._state
 
-    def get_values(self) -> Optional[List[Tuple[ESolarRegister, Any]]]:
+    def get_values(self) -> Optional[List[Tuple[ESmartRegister, Any]]]:
         if self._state_last_update is None or \
                 datetime.datetime.utcnow() - self._state_last_update > datetime.timedelta(seconds=10):
             return None

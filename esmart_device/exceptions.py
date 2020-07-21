@@ -1,18 +1,18 @@
-class ESolarException(Exception):
+class ESmartException(Exception):
     pass
 
 
-class CommandNotAcknowledgedException(ESolarException):
+class CommandNotAcknowledgedException(ESmartException):
     pass
 
 
-class InvalidCommandException(ESolarException):
+class InvalidCommandException(ESmartException):
     pass
 
 
-class ChecksumException(ESolarException):
+class ChecksumException(ESmartException):
     pass
 
 
-class ReadTimeoutException(ESolarException):
+class ReadTimeoutException(ESmartException):
     pass

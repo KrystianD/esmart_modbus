@@ -22,21 +22,21 @@ def uint32s_to_int(x: bytes) -> int:
     return (high << 16) | low
 
 
-class ESolarRegister:
-    def __init__(self, name: str, *, esolar_data_item: int, esolar_address: int, data_type: DataType, scale: Union[int, float] = 1,
+class ESmartRegister:
+    def __init__(self, name: str, *, esmart_data_item: int, esmart_address: int, data_type: DataType, scale: Union[int, float] = 1,
                  modbus_address: int,
                  modbus_type: ModbusRegisterType,
-                 esolar_to_modbus: Callable[[int], Union[int, bool]] = lambda x: x,
-                 modbus_to_esolar: Callable[[int], int] = lambda x: x) -> None:
+                 esmart_to_modbus: Callable[[int], Union[int, bool]] = lambda x: x,
+                 modbus_to_esmart: Callable[[int], int] = lambda x: x) -> None:
         self.name = name
-        self.data_item = esolar_data_item
-        self.esolar_address = esolar_address
+        self.data_item = esmart_data_item
+        self.esmart_address = esmart_address
         self.data_type = data_type
         self.scale = scale
         self.modbus_address = modbus_address
         self.modbus_type = modbus_type
-        self.esolar_to_modbus = esolar_to_modbus
-        self.modbus_to_esolar = modbus_to_esolar
+        self.emart_to_modbus = esmart_to_modbus
+        self.modbus_to_esmart = modbus_to_esmart
 
     @property
     def data_format(self) -> str:
@@ -67,7 +67,7 @@ class ESolarRegister:
         raise Exception
 
     def to_modbus(self, value: int) -> int:
-        return self.esolar_to_modbus(value)
+        return self.emart_to_modbus(value)
 
     def to_modbus_regs(self, value: int) -> List[int]:
         modbus_value = self.to_modbus(value)
@@ -89,11 +89,11 @@ class ESolarRegister:
 
         raise Exception("invalid data type")
 
-    def to_esolar_word(self, value: int) -> int:
-        esolar_value = self.modbus_to_esolar(value)
+    def to_esmart_word(self, value: int) -> int:
+        esmart_value = self.modbus_to_esmart(value)
 
         if self.data_type in (DataType.Int16, DataType.Uint16):
-            return esolar_value
+            return esmart_value
 
         raise Exception("invalid data type")
 
@@ -103,42 +103,42 @@ s16 = DataType.Int16
 u32 = DataType.UInt32s
 
 regs = [
-    ESolarRegister("        wChgMode", esolar_data_item=0, esolar_address=0x00, data_type=u16, modbus_address=1, modbus_type=ModbusRegisterType.InputRegister),
-    ESolarRegister("         wPvVolt", esolar_data_item=0, esolar_address=0x01, data_type=u16, modbus_address=2, modbus_type=ModbusRegisterType.InputRegister),
-    ESolarRegister("        mBatVolt", esolar_data_item=0, esolar_address=0x02, data_type=u16, modbus_address=3, modbus_type=ModbusRegisterType.InputRegister),
-    ESolarRegister("        wChgCurr", esolar_data_item=0, esolar_address=0x03, data_type=u16, modbus_address=4, modbus_type=ModbusRegisterType.InputRegister),
-    ESolarRegister("        wOutVolt", esolar_data_item=0, esolar_address=0x04, data_type=u16, modbus_address=5, modbus_type=ModbusRegisterType.InputRegister),
-    ESolarRegister("       wLoadVolt", esolar_data_item=0, esolar_address=0x05, data_type=u16, modbus_address=6, modbus_type=ModbusRegisterType.InputRegister),
-    ESolarRegister("       wLoadCurr", esolar_data_item=0, esolar_address=0x06, data_type=u16, modbus_address=7, modbus_type=ModbusRegisterType.InputRegister),
-    ESolarRegister("       wChgPower", esolar_data_item=0, esolar_address=0x07, data_type=u16, modbus_address=8, modbus_type=ModbusRegisterType.InputRegister),
-    ESolarRegister("      wLoadPower", esolar_data_item=0, esolar_address=0x08, data_type=u16, modbus_address=9, modbus_type=ModbusRegisterType.InputRegister),
-    ESolarRegister("        wBatTemp", esolar_data_item=0, esolar_address=0x09, data_type=s16, modbus_address=10, modbus_type=ModbusRegisterType.InputRegister),
-    ESolarRegister("      wInnerTemp", esolar_data_item=0, esolar_address=0x0A, data_type=s16, modbus_address=11, modbus_type=ModbusRegisterType.InputRegister),
-    ESolarRegister("         wBatCap", esolar_data_item=0, esolar_address=0x0B, data_type=s16, modbus_address=12, modbus_type=ModbusRegisterType.InputRegister),
+    ESmartRegister("        wChgMode", esmart_data_item=0, esmart_address=0x00, data_type=u16, modbus_address=1, modbus_type=ModbusRegisterType.InputRegister),
+    ESmartRegister("         wPvVolt", esmart_data_item=0, esmart_address=0x01, data_type=u16, modbus_address=2, modbus_type=ModbusRegisterType.InputRegister),
+    ESmartRegister("        mBatVolt", esmart_data_item=0, esmart_address=0x02, data_type=u16, modbus_address=3, modbus_type=ModbusRegisterType.InputRegister),
+    ESmartRegister("        wChgCurr", esmart_data_item=0, esmart_address=0x03, data_type=u16, modbus_address=4, modbus_type=ModbusRegisterType.InputRegister),
+    ESmartRegister("        wOutVolt", esmart_data_item=0, esmart_address=0x04, data_type=u16, modbus_address=5, modbus_type=ModbusRegisterType.InputRegister),
+    ESmartRegister("       wLoadVolt", esmart_data_item=0, esmart_address=0x05, data_type=u16, modbus_address=6, modbus_type=ModbusRegisterType.InputRegister),
+    ESmartRegister("       wLoadCurr", esmart_data_item=0, esmart_address=0x06, data_type=u16, modbus_address=7, modbus_type=ModbusRegisterType.InputRegister),
+    ESmartRegister("       wChgPower", esmart_data_item=0, esmart_address=0x07, data_type=u16, modbus_address=8, modbus_type=ModbusRegisterType.InputRegister),
+    ESmartRegister("      wLoadPower", esmart_data_item=0, esmart_address=0x08, data_type=u16, modbus_address=9, modbus_type=ModbusRegisterType.InputRegister),
+    ESmartRegister("        wBatTemp", esmart_data_item=0, esmart_address=0x09, data_type=s16, modbus_address=10, modbus_type=ModbusRegisterType.InputRegister),
+    ESmartRegister("      wInnerTemp", esmart_data_item=0, esmart_address=0x0A, data_type=s16, modbus_address=11, modbus_type=ModbusRegisterType.InputRegister),
+    ESmartRegister("         wBatCap", esmart_data_item=0, esmart_address=0x0B, data_type=s16, modbus_address=12, modbus_type=ModbusRegisterType.InputRegister),
 
-    ESolarRegister("      dwTotalEng", esolar_data_item=2, esolar_address=0x0E, data_type=u32, modbus_address=13, modbus_type=ModbusRegisterType.InputRegister),
-    ESolarRegister("  dbLoadTotalEng", esolar_data_item=2, esolar_address=0x14, data_type=u32, modbus_address=15, modbus_type=ModbusRegisterType.InputRegister),
+    ESmartRegister("      dwTotalEng", esmart_data_item=2, esmart_address=0x0E, data_type=u32, modbus_address=13, modbus_type=ModbusRegisterType.InputRegister),
+    ESmartRegister("  dbLoadTotalEng", esmart_data_item=2, esmart_address=0x14, data_type=u32, modbus_address=15, modbus_type=ModbusRegisterType.InputRegister),
 
-    ESolarRegister("       wBulkVolt", esolar_data_item=1, esolar_address=0x03, data_type=u16, modbus_address=1, modbus_type=ModbusRegisterType.HoldingRegister),
-    ESolarRegister("      wFloatVolt", esolar_data_item=1, esolar_address=0x04, data_type=u16, modbus_address=2, modbus_type=ModbusRegisterType.HoldingRegister),
-    ESolarRegister("     wMaxChgCurr", esolar_data_item=1, esolar_address=0x05, data_type=u16, modbus_address=3, modbus_type=ModbusRegisterType.HoldingRegister),
-    ESolarRegister("  wMaxDisChgCurr", esolar_data_item=1, esolar_address=0x06, data_type=u16, modbus_address=4, modbus_type=ModbusRegisterType.HoldingRegister),
-    ESolarRegister("wEqualizeChgVolt", esolar_data_item=1, esolar_address=0x07, data_type=u16, modbus_address=5, modbus_type=ModbusRegisterType.HoldingRegister),
-    ESolarRegister("wEqualizeChgTime", esolar_data_item=1, esolar_address=0x08, data_type=u16, modbus_address=6, modbus_type=ModbusRegisterType.HoldingRegister),
-    ESolarRegister("     bLoadUseSel", esolar_data_item=1, esolar_address=0x09, data_type=u16, modbus_address=7, modbus_type=ModbusRegisterType.HoldingRegister),
+    ESmartRegister("       wBulkVolt", esmart_data_item=1, esmart_address=0x03, data_type=u16, modbus_address=1, modbus_type=ModbusRegisterType.HoldingRegister),
+    ESmartRegister("      wFloatVolt", esmart_data_item=1, esmart_address=0x04, data_type=u16, modbus_address=2, modbus_type=ModbusRegisterType.HoldingRegister),
+    ESmartRegister("     wMaxChgCurr", esmart_data_item=1, esmart_address=0x05, data_type=u16, modbus_address=3, modbus_type=ModbusRegisterType.HoldingRegister),
+    ESmartRegister("  wMaxDisChgCurr", esmart_data_item=1, esmart_address=0x06, data_type=u16, modbus_address=4, modbus_type=ModbusRegisterType.HoldingRegister),
+    ESmartRegister("wEqualizeChgVolt", esmart_data_item=1, esmart_address=0x07, data_type=u16, modbus_address=5, modbus_type=ModbusRegisterType.HoldingRegister),
+    ESmartRegister("wEqualizeChgTime", esmart_data_item=1, esmart_address=0x08, data_type=u16, modbus_address=6, modbus_type=ModbusRegisterType.HoldingRegister),
+    ESmartRegister("     bLoadUseSel", esmart_data_item=1, esmart_address=0x09, data_type=u16, modbus_address=7, modbus_type=ModbusRegisterType.HoldingRegister),
 
-    ESolarRegister("        wLoadOvp", esolar_data_item=7, esolar_address=0x01, data_type=u16, modbus_address=8, modbus_type=ModbusRegisterType.HoldingRegister),
-    ESolarRegister("        wLoadUvp", esolar_data_item=7, esolar_address=0x02, data_type=u16, modbus_address=9, modbus_type=ModbusRegisterType.HoldingRegister),
-    ESolarRegister("         wBatOvp", esolar_data_item=7, esolar_address=0x03, data_type=u16, modbus_address=10, modbus_type=ModbusRegisterType.HoldingRegister),
-    ESolarRegister("         wBatOvB", esolar_data_item=7, esolar_address=0x04, data_type=u16, modbus_address=11, modbus_type=ModbusRegisterType.HoldingRegister),
-    ESolarRegister("         wBatUvp", esolar_data_item=7, esolar_address=0x05, data_type=u16, modbus_address=12, modbus_type=ModbusRegisterType.HoldingRegister),
-    ESolarRegister("         wBatUvB", esolar_data_item=7, esolar_address=0x06, data_type=u16, modbus_address=13, modbus_type=ModbusRegisterType.HoldingRegister),
+    ESmartRegister("        wLoadOvp", esmart_data_item=7, esmart_address=0x01, data_type=u16, modbus_address=8, modbus_type=ModbusRegisterType.HoldingRegister),
+    ESmartRegister("        wLoadUvp", esmart_data_item=7, esmart_address=0x02, data_type=u16, modbus_address=9, modbus_type=ModbusRegisterType.HoldingRegister),
+    ESmartRegister("         wBatOvp", esmart_data_item=7, esmart_address=0x03, data_type=u16, modbus_address=10, modbus_type=ModbusRegisterType.HoldingRegister),
+    ESmartRegister("         wBatOvB", esmart_data_item=7, esmart_address=0x04, data_type=u16, modbus_address=11, modbus_type=ModbusRegisterType.HoldingRegister),
+    ESmartRegister("         wBatUvp", esmart_data_item=7, esmart_address=0x05, data_type=u16, modbus_address=12, modbus_type=ModbusRegisterType.HoldingRegister),
+    ESmartRegister("         wBatUvB", esmart_data_item=7, esmart_address=0x06, data_type=u16, modbus_address=13, modbus_type=ModbusRegisterType.HoldingRegister),
 
-    ESolarRegister("     loadEnabled", esolar_data_item=4, esolar_address=0x01, data_type=u16, modbus_address=1, modbus_type=ModbusRegisterType.Coil,
-                   esolar_to_modbus=lambda x: x == 5117,
-                   modbus_to_esolar=lambda x: 5117 if x else 5118),
+    ESmartRegister("     loadEnabled", esmart_data_item=4, esmart_address=0x01, data_type=u16, modbus_address=1, modbus_type=ModbusRegisterType.Coil,
+                   esmart_to_modbus=lambda x: x == 5117,
+                   modbus_to_esmart=lambda x: 5117 if x else 5118),
 ]
 
 
-def get_register(data_item: int, data_offset: int) -> ESolarRegister:
-    return [x for x in regs if x.data_item == data_item and x.esolar_address == data_offset][0]
+def get_register(data_item: int, data_offset: int) -> ESmartRegister:
+    return [x for x in regs if x.data_item == data_item and x.esmart_address == data_offset][0]
