@@ -1,6 +1,6 @@
 import struct
 
-from esolar_device.crc import calculate_crc
+from esmart_device.crc import calculate_crc
 
 PROTOCOL_STARTING_MARK = 0xaa
 

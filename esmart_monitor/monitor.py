@@ -7,10 +7,10 @@ import traceback
 import itertools
 from typing import Optional, Any, Tuple, cast, Dict, List
 
-from esolar_device.device import ESolarSerialDevice
-from esolar_device.exceptions import ReadTimeoutException
-from esolar_monitor.registers import regs, ESolarRegister, get_register
-from esolar_monitor.types import ESolarState, ESolarConfig
+from esmart_device.device import ESolarSerialDevice
+from esmart_device.exceptions import ReadTimeoutException
+from esmart_monitor.registers import regs, ESolarRegister, get_register
+from esmart_monitor.types import ESolarState, ESolarConfig
 
 TCommandEntry = Tuple[ESolarRegister, Any]
 

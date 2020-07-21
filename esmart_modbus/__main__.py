@@ -1,7 +1,7 @@
 import argparse
 import logging
 
-from esolar_modbus.server import run_server
+from esmart_modbus.server import run_server
 
 
 def main() -> None:

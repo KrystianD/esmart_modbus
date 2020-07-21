@@ -6,8 +6,8 @@ from pymodbus.datastore.store import BaseModbusDataBlock
 from pymodbus.server.asynchronous import StartTcpServer
 from pymodbus.datastore import ModbusSlaveContext, ModbusServerContext
 
-from esolar_monitor.monitor import ESolarMonitor
-from esolar_monitor.registers import ModbusRegisterType, ESolarRegister, regs, DataType
+from esmart_monitor.monitor import ESolarMonitor
+from esmart_monitor.registers import ModbusRegisterType, ESolarRegister, regs, DataType
 
 
 def create_registers(registers: Sequence[Tuple[ESolarRegister, Any]]) -> Dict[int, int]:

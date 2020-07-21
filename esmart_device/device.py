@@ -2,10 +2,10 @@ import serial
 import logging
 from typing import Union, Sequence
 
-from esolar_device.crc import verify_crc
-from esolar_device.exceptions import CommandNotAcknowledgedException, ChecksumException, InvalidCommandException, ReadTimeoutException
-from esolar_device.protocol import build_set_request_word, build_get_request, CMD_NACK, CMD_ERR
-from esolar_device.response_header import ResponseHeader
+from esmart_device.crc import verify_crc
+from esmart_device.exceptions import CommandNotAcknowledgedException, ChecksumException, InvalidCommandException, ReadTimeoutException
+from esmart_device.protocol import build_set_request_word, build_get_request, CMD_NACK, CMD_ERR
+from esmart_device.response_header import ResponseHeader
 
 
 def read_all(ser: serial.Serial, len_to_read: int) -> bytes:

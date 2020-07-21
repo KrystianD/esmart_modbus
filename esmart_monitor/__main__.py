@@ -1,6 +1,6 @@
 import argparse
 
-from esolar_monitor.monitor import ESolarMonitor
+from esmart_monitor.monitor import ESolarMonitor
 
 
 def main() -> None:

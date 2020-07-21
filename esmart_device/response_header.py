@@ -1,7 +1,7 @@
 import struct
 from dataclasses import dataclass
 
-from esolar_device.protocol import PROTOCOL_STARTING_MARK
+from esmart_device.protocol import PROTOCOL_STARTING_MARK
 
 
 @dataclass

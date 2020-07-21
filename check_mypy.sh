@@ -1,2 +1,2 @@
 #!/bin/bash
-mypy -p esolar_device -p esolar_monitor -p esolar_modbus
+mypy -p esmart_device -p esmart_monitor -p esmart_modbus
