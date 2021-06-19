@@ -134,6 +134,8 @@ regs = [
     ESmartRegister("         wBatUvp", esmart_data_item=7, esmart_address=0x05, data_type=u16, modbus_address=12, modbus_type=ModbusRegisterType.HoldingRegister),
     ESmartRegister("         wBatUvB", esmart_data_item=7, esmart_address=0x06, data_type=u16, modbus_address=13, modbus_type=ModbusRegisterType.HoldingRegister),
 
+    ESmartRegister("  wBacklightTime", esmart_data_item=2, esmart_address=0x16, data_type=u16, modbus_address=14, modbus_type=ModbusRegisterType.HoldingRegister),
+
     ESmartRegister("     loadEnabled", esmart_data_item=4, esmart_address=0x01, data_type=u16, modbus_address=1, modbus_type=ModbusRegisterType.Coil,
                    esmart_to_modbus=lambda x: x == 5117,
                    modbus_to_esmart=lambda x: 5117 if x else 5118),
