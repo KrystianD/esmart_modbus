@@ -9,7 +9,7 @@ def main() -> None:
 
     args = argparser.parse_args()
 
-    mon = ESmartMonitor(args.path)
+    mon = ESmartMonitor(args.port)
     mon.run()
 
 
