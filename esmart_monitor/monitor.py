@@ -1,10 +1,13 @@
 import datetime
+import enum
 import logging
 import queue
 import struct
+import threading
 import time
 import traceback
 import itertools
+from threading import Event
 from typing import Optional, Any, Tuple, cast, Dict, List
 
 from esmart_device.device import ESmartSerialDevice
@@ -12,7 +15,24 @@ from esmart_device.exceptions import ReadTimeoutException
 from esmart_monitor.registers import regs, ESmartRegister, get_register
 from esmart_monitor.types import ESmartState, ESmartConfig
 
-TCommandEntry = Tuple[ESmartRegister, Any]
+
+class RequestFailedException(Exception):
+    pass
+
+
+ValueHoldTime = datetime.timedelta(seconds=2)
+
+
+class Command:
+    def __init__(self, register: ESmartRegister, value: Any):
+        self.event = Event()
+        self.register = register
+        self.value = value
+        self.success = False
+        self.event = threading.Event()
+
+    def __str__(self) -> str:
+        return f"{self.register.name} -> {self.value}"
 
 
 class ESmartMonitor:
@@ -23,11 +43,11 @@ class ESmartMonitor:
         self._config: Optional[ESmartConfig] = None
         self._state_last_update: Optional[datetime.datetime] = None
 
-        self._commands_queue: queue.Queue[TCommandEntry] = queue.Queue()
+        self._commands_queue: queue.Queue[Command] = queue.Queue()
 
         self._values: List[Tuple[ESmartRegister, Any]] = []
 
-        self._pending_updates: Dict[ESmartRegister, Any] = {}
+        self._pending_updates: Dict[ESmartRegister, Tuple[float, int]] = {}
 
     def _get_unpack(self, *, data_item: int, data_offset: int, data_format: str) -> Tuple[Any, ...]:
         if self._dev is None:
@@ -44,21 +64,27 @@ class ESmartMonitor:
             except queue.Empty:
                 break
 
-    def _execute_command_retry(self, cmd: TCommandEntry) -> None:
-        logging.info(f"Executing command: {cmd}")
-        reg, value = cmd
-
+    def _execute_command_retry(self, cmd: Command) -> None:
         if self._dev is None:
             raise Exception("device not initialized")
 
+        logging.info(f"Executing command [{cmd}]")
+
         for i in range(5):
             try:
-                self._dev.set_word(data_item=reg.data_item, data_offset=reg.esmart_address, value=cast(int, value))
+                self._dev.set_word(data_item=cmd.register.data_item, data_offset=cmd.register.esmart_address, value=cast(int, cmd.value))
+                cmd.success = True
+                cmd.event.set()
+                logging.info(f"Command [{cmd}] completed")
+                self._pending_updates[cmd.register] = (time.time() + ValueHoldTime.total_seconds(), cmd.value)
                 time.sleep(0.2)
-                break
+                return
             except ReadTimeoutException:
-                logging.info(f"Command timed out: {cmd}, retrying")
+                logging.info(f"Command [{cmd}] timed out, retrying")
                 time.sleep(0.2)
+
+        cmd.event.set()
+        logging.info(f"Command [{cmd}] failed")
 
     def run(self) -> None:
         while True:
@@ -89,8 +115,6 @@ class ESmartMonitor:
                         for reg, val in new_values:
                             logging.debug(f"{reg.name} {reg.to_modbus(val)}")
 
-                        self._pending_updates = {}
-
                     except KeyboardInterrupt:
                         break
                     except ReadTimeoutException:
@@ -119,14 +143,19 @@ class ESmartMonitor:
             return None
         else:
             merged_values = self._values
-            for i, (reg, _) in enumerate(merged_values):
+            for i, (reg, _) in enumerate(list(merged_values)):
                 if reg in self._pending_updates:
-                    merged_values[i] = (reg, self._pending_updates[reg])
+                    v = self._pending_updates[reg]
+                    if time.time() < v[0]:
+                        merged_values[i] = (reg, v[1])
 
             return merged_values
 
     def set_word(self, *, data_item: int, data_offset: int, value: int) -> None:
         reg = get_register(data_item, data_offset)
 
-        self._commands_queue.put((reg, value))
-        self._pending_updates[reg] = value
+        cmd = Command(reg, value)
+        self._commands_queue.put(cmd)
+        cmd.event.wait()
+        if not cmd.success:
+            raise RequestFailedException()
