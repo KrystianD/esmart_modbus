@@ -99,10 +99,10 @@ class ESmartMonitor:
                             addr_min = min(x.esmart_address for x in regs_for_item)
                             addr_max = max(x.esmart_address + (x.data_size // 2) for x in regs_for_item)
 
+                            self._execute_commands()
+
                             d = self._dev.get(data_item=data_item, data_offset=addr_min, data_length=(addr_max - addr_min) * 2)
                             time.sleep(0.2)
-
-                            self._execute_commands()
 
                             for reg in regs_for_item:
                                 reg_data = reg.process_raw(struct.unpack_from(reg.data_format, d, (reg.esmart_address - addr_min) * 2)[0])
