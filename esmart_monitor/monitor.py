@@ -48,6 +48,8 @@ class ESmartMonitor:
 
         self._pending_updates: Dict[ESmartRegister, Tuple[float, int]] = {}
 
+        self._update_lock = threading.Lock()
+
     def _execute_commands(self) -> None:
         while True:
             try:
@@ -101,8 +103,9 @@ class ESmartMonitor:
 
                                 new_values.append((reg, reg_data))
 
-                        self._values = new_values
-                        self._state_last_update = datetime.datetime.utcnow()
+                        with self._update_lock:
+                            self._values = new_values
+                            self._state_last_update = datetime.datetime.utcnow()
 
                         for reg, val in new_values:
                             logging.debug(f"{reg.name} {reg.to_modbus(val)}")
@@ -122,24 +125,26 @@ class ESmartMonitor:
                     self._dev.close()
 
     def get_values(self) -> Optional[List[Tuple[ESmartRegister, Any]]]:
-        if self._state_last_update is None or \
-                datetime.datetime.utcnow() - self._state_last_update > StaleValueTime:
-            return None
-        else:
-            merged_values = self._values
-            for i, (reg, _) in enumerate(list(merged_values)):
-                if reg in self._pending_updates:
-                    v = self._pending_updates[reg]
-                    if time.time() < v[0]:
-                        merged_values[i] = (reg, v[1])
+        with self._update_lock:
+            if self._state_last_update is None or \
+                    datetime.datetime.utcnow() - self._state_last_update > StaleValueTime:
+                return None
+            else:
+                merged_values = self._values
+                for i, (reg, _) in enumerate(list(merged_values)):
+                    if reg in self._pending_updates:
+                        v = self._pending_updates[reg]
+                        if time.time() < v[0]:
+                            merged_values[i] = (reg, v[1])
 
-            return merged_values
+                return merged_values
 
     def set_word(self, *, data_item: int, data_offset: int, value: int) -> None:
         reg = get_register(data_item, data_offset)
 
         cmd = Command(reg, value)
-        self._commands_queue.put(cmd)
+        with self._update_lock:
+            self._commands_queue.put(cmd)
         cmd.event.wait()
         if not cmd.success:
             raise RequestFailedException()
