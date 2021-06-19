@@ -13,7 +13,6 @@ from typing import Optional, Any, Tuple, cast, Dict, List
 from esmart_device.device import ESmartSerialDevice
 from esmart_device.exceptions import ReadTimeoutException
 from esmart_monitor.registers import regs, ESmartRegister, get_register
-from esmart_monitor.types import ESmartState, ESmartConfig
 
 
 class RequestFailedException(Exception):
@@ -39,8 +38,6 @@ class ESmartMonitor:
     def __init__(self, path: str):
         self._dev: Optional[ESmartSerialDevice] = None
         self._path = path
-        self._state: Optional[ESmartState] = None
-        self._config: Optional[ESmartConfig] = None
         self._state_last_update: Optional[datetime.datetime] = None
 
         self._commands_queue: queue.Queue[Command] = queue.Queue()
@@ -48,13 +45,6 @@ class ESmartMonitor:
         self._values: List[Tuple[ESmartRegister, Any]] = []
 
         self._pending_updates: Dict[ESmartRegister, Tuple[float, int]] = {}
-
-    def _get_unpack(self, *, data_item: int, data_offset: int, data_format: str) -> Tuple[Any, ...]:
-        if self._dev is None:
-            raise Exception("device not initialized")
-        data = self._dev.get(data_item=data_item, data_offset=data_offset, data_length=struct.calcsize(data_format))
-        time.sleep(0.5)
-        return struct.unpack(data_format, data)
 
     def _execute_commands(self) -> None:
         while True:
@@ -128,14 +118,6 @@ class ESmartMonitor:
             finally:
                 if self._dev is not None:
                     self._dev.close()
-
-    def get_state(self) -> Optional[ESmartState]:
-        if self._state is None or \
-                self._state_last_update is None or \
-                datetime.datetime.utcnow() - self._state_last_update > datetime.timedelta(seconds=10):
-            return None
-        else:
-            return self._state
 
     def get_values(self) -> Optional[List[Tuple[ESmartRegister, Any]]]:
         if self._state_last_update is None or \
