@@ -34,7 +34,7 @@ class RegistersBlock(BaseModbusDataBlock):
 
         modbus_reg: ESmartRegister = [x for x in regs if x.modbus_address == address and x.modbus_type == self.reg_type][0]
 
-        assert modbus_reg.data_type in (DataType.Uint16,)
+        assert modbus_reg.data_type in (DataType.UInt16,)
 
         value = values[0]
         self.monitor.set_word(data_item=modbus_reg.data_item, data_offset=modbus_reg.esmart_address, value=modbus_reg.to_esmart_word(value))

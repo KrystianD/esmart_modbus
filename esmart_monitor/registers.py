@@ -10,7 +10,7 @@ class ModbusRegisterType(Enum):
 
 
 class DataType(Enum):
-    Uint16 = 0
+    UInt16 = 0
     Int16 = 1
     UInt32s = 2
 
@@ -42,7 +42,7 @@ class ESmartRegister:
     def data_format(self) -> str:
         if self.data_type == DataType.Int16:
             return "<h"
-        if self.data_type == DataType.Uint16:
+        if self.data_type == DataType.UInt16:
             return "<H"
         if self.data_type == DataType.UInt32s:
             return "4s"
@@ -60,7 +60,7 @@ class ESmartRegister:
     def process_raw(self, value: Union[int, bytes]) -> int:
         if self.data_type == DataType.Int16 and isinstance(value, int):
             return value
-        if self.data_type == DataType.Uint16 and isinstance(value, int):
+        if self.data_type == DataType.UInt16 and isinstance(value, int):
             return value
         if self.data_type == DataType.UInt32s and isinstance(value, bytes):
             return uint32s_to_int(value)
@@ -72,7 +72,7 @@ class ESmartRegister:
     def to_modbus_regs(self, value: int) -> List[int]:
         modbus_value = self.to_modbus(value)
 
-        if self.data_type in (DataType.Int16, DataType.Uint16):
+        if self.data_type in (DataType.Int16, DataType.UInt16):
             return [modbus_value]
         if self.data_type == DataType.UInt32s:
             return [(value & 0x0000ffff) >> 0,
@@ -81,7 +81,7 @@ class ESmartRegister:
         raise Exception("invalid data type")
 
     def from_modbus_regs(self, regs: List[int]) -> Union[int, List[int]]:
-        if self.data_type in (DataType.Int16, DataType.Uint16):
+        if self.data_type in (DataType.Int16, DataType.UInt16):
             return regs[0]
         if self.data_type == DataType.UInt32s:
             return [(regs[0]) << 0 |
@@ -92,13 +92,13 @@ class ESmartRegister:
     def to_esmart_word(self, value: int) -> int:
         esmart_value = self.modbus_to_esmart(value)
 
-        if self.data_type in (DataType.Int16, DataType.Uint16):
+        if self.data_type in (DataType.Int16, DataType.UInt16):
             return esmart_value
 
         raise Exception("invalid data type")
 
 
-u16 = DataType.Uint16
+u16 = DataType.UInt16
 s16 = DataType.Int16
 u32 = DataType.UInt32s
 
