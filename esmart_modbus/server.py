@@ -7,7 +7,7 @@ from pymodbus.server.asynchronous import StartTcpServer
 from pymodbus.datastore import ModbusSlaveContext, ModbusServerContext
 
 from esmart_monitor.monitor import ESmartMonitor
-from esmart_monitor.registers import ModbusRegisterType, ESmartRegister, regs, DataType
+from esmart_device.registers import ModbusRegisterType, ESmartRegister, DataType, esmart_registers
 
 
 def create_registers(registers: Sequence[Tuple[ESmartRegister, Any]]) -> Dict[int, int]:
@@ -32,7 +32,7 @@ class RegistersBlock(BaseModbusDataBlock):
     def setValues(self, address: int, values: List[int]) -> None:
         assert self.reg_type in (ModbusRegisterType.Coil, ModbusRegisterType.HoldingRegister)
 
-        modbus_reg: ESmartRegister = [x for x in regs if x.modbus_address == address and x.modbus_type == self.reg_type][0]
+        modbus_reg: ESmartRegister = [x for x in esmart_registers if x.modbus_address == address and x.modbus_type == self.reg_type][0]
 
         assert modbus_reg.data_type in (DataType.UInt16,)
 

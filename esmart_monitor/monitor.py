@@ -12,7 +12,7 @@ from typing import Optional, Any, Tuple, cast, Dict, List
 
 from esmart_device.device import ESmartSerialDevice
 from esmart_device.exceptions import ReadTimeoutException
-from esmart_monitor.registers import regs, ESmartRegister, get_register
+from esmart_device.registers import ESmartRegister, get_register, esmart_registers
 
 
 class RequestFailedException(Exception):
@@ -88,7 +88,7 @@ class ESmartMonitor:
                 while True:
                     try:
                         new_values = []
-                        for data_item, regs_for_item_it in itertools.groupby(regs, lambda x: x.data_item):
+                        for data_item, regs_for_item_it in itertools.groupby(esmart_registers, lambda x: x.data_item):
                             regs_for_item: List[ESmartRegister] = list(regs_for_item_it)
                             addr_min = min(x.esmart_address for x in regs_for_item)
                             addr_max = max(x.esmart_address + (x.data_size // 2) for x in regs_for_item)

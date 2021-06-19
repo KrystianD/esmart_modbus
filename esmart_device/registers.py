@@ -102,7 +102,7 @@ u16 = DataType.UInt16
 s16 = DataType.Int16
 u32 = DataType.UInt32s
 
-regs = [
+esmart_registers = [
     ESmartRegister("        wChgMode", esmart_data_item=0, esmart_address=0x00, data_type=u16, modbus_address=1, modbus_type=ModbusRegisterType.InputRegister),
     ESmartRegister("         wPvVolt", esmart_data_item=0, esmart_address=0x01, data_type=u16, modbus_address=2, modbus_type=ModbusRegisterType.InputRegister),
     ESmartRegister("        mBatVolt", esmart_data_item=0, esmart_address=0x02, data_type=u16, modbus_address=3, modbus_type=ModbusRegisterType.InputRegister),
@@ -143,4 +143,4 @@ regs = [
 
 
 def get_register(data_item: int, data_offset: int) -> ESmartRegister:
-    return [x for x in regs if x.data_item == data_item and x.esmart_address == data_offset][0]
+    return [x for x in esmart_registers if x.data_item == data_item and x.esmart_address == data_offset][0]
