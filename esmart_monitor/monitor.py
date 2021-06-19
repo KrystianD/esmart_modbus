@@ -20,6 +20,8 @@ class RequestFailedException(Exception):
 
 
 ValueHoldTime = datetime.timedelta(seconds=2)
+UpdateInterval = datetime.timedelta(seconds=1)
+StaleValueTime = datetime.timedelta(seconds=10)
 
 
 class Command:
@@ -109,19 +111,19 @@ class ESmartMonitor:
                         break
                     except ReadTimeoutException:
                         logging.error("Read timeout exception")
-                        time.sleep(1)
+                        time.sleep(UpdateInterval.total_seconds())
             except KeyboardInterrupt:
                 break
             except:
                 traceback.print_exc()
-                time.sleep(1)
+                time.sleep(UpdateInterval.total_seconds())
             finally:
                 if self._dev is not None:
                     self._dev.close()
 
     def get_values(self) -> Optional[List[Tuple[ESmartRegister, Any]]]:
         if self._state_last_update is None or \
-                datetime.datetime.utcnow() - self._state_last_update > datetime.timedelta(seconds=10):
+                datetime.datetime.utcnow() - self._state_last_update > StaleValueTime:
             return None
         else:
             merged_values = self._values
