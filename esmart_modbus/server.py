@@ -66,8 +66,8 @@ class RegistersBlock(BaseModbusDataBlock):
             raise
 
 
-def run_server(esmart_serial_port_path: str, modbus_host: str, modbus_port: int) -> None:
-    mon = ESmartMonitor(esmart_serial_port_path)
+def run_server(esmart_serial_port_path: str, device_addr: int, modbus_host: str, modbus_port: int) -> None:
+    mon = ESmartMonitor(esmart_serial_port_path, device_addr)
 
     th = threading.Thread(target=mon.run)
     th.daemon = True

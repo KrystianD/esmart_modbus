@@ -7,6 +7,7 @@ from esmart_modbus.server import run_server
 def main() -> None:
     argparser = argparse.ArgumentParser()
     argparser.add_argument("--esmart-port", type=str, required=True)
+    argparser.add_argument("--device-addr", type=int, required=True)
     argparser.add_argument("--modbus-host", type=str, required=True)
     argparser.add_argument("--modbus-port", type=int, required=True)
     argparser.add_argument('--debug', action='store_true')
@@ -20,7 +21,7 @@ def main() -> None:
     else:
         log.setLevel(logging.INFO)
 
-    run_server(args.esmart_port, args.modbus_host, args.modbus_port)
+    run_server(args.esmart_port, args.device_addr, args.modbus_host, args.modbus_port)
 
 
 if __name__ == "__main__":

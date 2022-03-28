@@ -7,6 +7,7 @@ from esmart_monitor.monitor import ESmartMonitor
 def main() -> None:
     argparser = argparse.ArgumentParser()
     argparser.add_argument("--port", type=str, required=True)
+    argparser.add_argument("--device-addr", type=int, required=True)
     argparser.add_argument('--debug', action='store_true')
 
     args = argparser.parse_args()
@@ -18,7 +19,7 @@ def main() -> None:
     else:
         log.setLevel(logging.INFO)
 
-    mon = ESmartMonitor(args.port)
+    mon = ESmartMonitor(args.port, args.device_addr)
     mon.run()
 
 

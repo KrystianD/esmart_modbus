@@ -37,9 +37,10 @@ class Command:
 
 
 class ESmartMonitor:
-    def __init__(self, path: str):
+    def __init__(self, path: str, device_addr: int):
         self._dev: Optional[ESmartSerialDevice] = None
         self._path = path
+        self._device_addr = device_addr
         self._state_last_update: Optional[datetime.datetime] = None
 
         self._commands_queue: queue.Queue[Command] = queue.Queue()
@@ -84,7 +85,7 @@ class ESmartMonitor:
         while True:
             try:
                 logging.info("Creating new serial port connection")
-                self._dev = ESmartSerialDevice(self._path, device_addr=2)
+                self._dev = ESmartSerialDevice(self._path, device_addr=self._device_addr)
                 while True:
                     try:
                         new_values = []
